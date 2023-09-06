@@ -1,6 +1,6 @@
 
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Table, MetaData
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
 convention = {
@@ -10,15 +10,25 @@ metadata = MetaData(naming_convention=convention)
 
 Base = declarative_base(metadata=metadata)
 
+game_orders = Table(
+    'game_orders',
+    Base.metadata,
+    Column('customer_id', ForeignKey('customers.id'), primary_key=True),
+    Column('game_id', ForeignKey('games.id'), primary_key=True),
+    extend_existing=True,
+)
+
 class Game(Base):
     __tablename__ = 'games'
     id = Column(Integer(), primary_key=True)
     title = Column(String())
     genre = Column(String())
     platform = Column(String())
-    price = Column(String())
+    price = Column(Integer())
     available = Column(Boolean())
     
+    orders = relationship('Order', backref=backref('game'), cascade='all, delete-orphan')
+    customers = relationship('Customer', secondary='game_orders', back_populates='games')
     
     def __init__(self, title, genre, platform, price, available=True):
       self.id = None
@@ -41,6 +51,8 @@ class Customer(Base):
     name = Column(String())
     email = Column(String())
     
+    orders = relationship('Order', backref=backref('customer'), cascade='all, delete-orphan')
+    games = relationship('Game', secondary='game_orders', back_populates='customers')
     
     def __init__(self, name, email):
         self.id = None
@@ -63,8 +75,9 @@ class Order(Base):
     def __init__(self, quantity, customer_id, game_id):
         self.id = None
         self.quantity = quantity
-        self.customer_id = customer_id,
+        self.customer_id = customer_id
         self.game_id = game_id
+        self.total_price = 0
         
       
     
