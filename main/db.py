@@ -8,10 +8,11 @@ from sqlalchemy.orm import sessionmaker
 
 from models import Game, Customer, Order
 
-if __name__ == '__main__':
-    engine = create_engine('sqlite:///games-manager.db')
-    Session = sessionmaker(bind=engine)
-    session = Session()
+engine = create_engine('sqlite:///games-manager.db')
+Session = sessionmaker(bind=engine)
+session = Session()
+
+def populate_db():
     
     session.query(Game).delete()
     session.query(Customer).delete()
@@ -75,3 +76,6 @@ if __name__ == '__main__':
     session.bulk_save_objects(orders)
     session.commit()
     session.close()        
+    
+if __name__ == '__main__':
+    populate_db()    
