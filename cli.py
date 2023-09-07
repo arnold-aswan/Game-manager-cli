@@ -65,15 +65,20 @@ def update_game():
     
     
 @cli.command()
-@click.option('--quantity', type=int, prompt="Quantity of games", help="No of games ordered")
-@click.option('--customer_id', type=int, prompt="Enter customer id", help="input customer_id")
-@click.option('--game_id', type=int, prompt="Enter game id", help="input game_id")
-def new_order(quantity,customer_id,game_id ):
+def new_order( ):
+    get_customer_list()
+    get_games_list()
+    quantity = input("\n No of games ordered:: ")
+    customer_id = input("input customer_id:: ")
+    game_id = input("input game_id:: ")
+    game = session.query(Game).filter_by(id= game_id).first()
+    total = int(quantity) * int(game.price)
     new_order = Order(quantity, customer_id, game_id)
+    new_order.total_price = total
     session.add(new_order)
     session.commit()
     click.echo(f' +++ New order +++ \n Quantity: {quantity}, Cust.id: {customer_id}, Game.id: {game_id}')
-    
+      
 @cli.command()
 def delete_game():
     click.echo(f'\n Current list of games \n')
@@ -87,6 +92,7 @@ def get_customer_list():
     result = []
     for customer in customer_list:
         result.append(f'id: {customer.id} | Name: {customer.name} | email: {customer.email}')
+    click.echo(f'\n +++++ Customers List +++++ \n') 
     click.echo('\n'.join(result))     
        
 def get_games_list():
