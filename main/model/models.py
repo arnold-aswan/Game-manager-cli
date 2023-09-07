@@ -2,8 +2,7 @@
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Table, MetaData
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
-# from database.db import (Column, String, Integer, Boolean, ForeignKey, 
-# Table, MetaData, Base, relationship, declarative_base, backref)
+
 
 convention = {
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
@@ -79,7 +78,7 @@ class Order(Base):
         self.quantity = quantity
         self.customer_id = customer_id
         self.game_id = game_id
-        self.total_price = 0
+        
         
     def __repr__(self):    
         return f'(quantity = {self.quantity}), ' + \
