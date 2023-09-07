@@ -10,23 +10,38 @@ def cli():
     pass
 
 @cli.command() 
-@click.option('--lists', prompt="view a list of customers:", help="--list view cust list")  
-@click.argument('lists', type=int)     
-def view_customer_list(lists):
+# @click.option('--lists', type=int, help="--list view cust list")  
+# @click.argument('lists', type=int)     
+def view_lists():
     # lists = int(lists)
-    click.echo('\n 1.  View a list of customers, available games and orders. \n')
-    click.echo("Customer List. \n")
-    get_customer_list()  
-    click.echo('\n Available Games \n')
-    get_games_list()
-    click.echo('\n Orders Lists \n')  
-    get_orders_list()   
+    click.echo("""\n View a list of 
+               1 > customers \n 
+               2 > available games \n 
+               3 > orders. \n
+               """)
+    choice =click.prompt("view a list of 1. customers | 2. games | 3. orders:", type=int)
+    
+    # if choice:
+    if choice == 1:
+        click.echo("Customer List. \n")
+        get_customer_list()  
+    elif choice == 2:    
+        click.echo('\n Available Games \n')
+        get_games_list()
+    elif choice == 3:    
+        click.echo('\n Orders Lists \n')  
+        get_orders_list()   
     
 @cli.command()
-@click.option('-c', '--customer', type=str,  help="Enter your 'name, email'")
-def add_customer(customer):
-    name, email = customer.split(',')
-    existing_customer = session.query(Customer).filter_by(email= email).first()
+# @click.option('-c', '--customer', type=str,  help="Enter your 'name, email'")
+@click.option('--name', prompt="Enter your name:", help="Your name")
+@click.option('--email', prompt="Enter email address", help="email address")
+def add_customer(name, email):
+# def add_customer(customer):   
+    # name, email = customer.split(',')
+    name = name
+    email = email.replace(" ", "")
+    existing_customer = session.query(Customer).filter_by(email=email).first()
     
     if existing_customer:
         click.echo(f'This email address already exists.')
@@ -35,18 +50,23 @@ def add_customer(customer):
         new_customer = Customer(name, email)
         session.add(new_customer)
         session.commit()  
-        click.echo(f'Added new customer: {customer} successfully')  
+        click.echo(f'Added new customer: name:{name} email:{email} successfully') 
+        # click.echo(f'Added new customer: {customer} successfully')  
        
         
 @cli.command()
-@click.option('-g', '--game', nargs=4, type=(str, str, str, int), help="Add new game: 'title' 'genre' 'platform' price")                      
-def add_game(game):
-    print("Enter title, genre, platform, price")
-    title, genre, platform, price = game
+# @click.option('-g', '--game', nargs=4, type=(str, str, str, int), help="Add new game: 'title' 'genre' 'platform' price")   
+@click.option('--title', prompt="Enter game title", help="The name of the game")          
+@click.option('--genre', prompt="Enter game genre", help="The genre of te game")   
+@click.option('--platform', prompt="The platform game is available to", help="PS4, ps5, xbox, pc, nintendo")   
+@click.option('--price', type=int, prompt="Enter price of the game", help="i.e 60$")            
+def add_game(title,genre,platform,price):
+    # print("Enter title, genre, platform, price")
+    # title, genre, platform, price = game
     new_game = Game(title, genre, platform, price)
     session.add(new_game)
     session.commit()
-    click.echo(f'Game Title: {title} Genre: {genre} Platform: {platform} Price: {price} has been added successfully')
+    click.echo(f' \n Game Title: {title} | Genre: {genre} | Platform: {platform} | Price: {price} | has been added successfully \n')
 
 @cli.command()
 # @click.option('-u', '--updates',prompt="Update game", help="Update Game")
@@ -60,10 +80,13 @@ def update_game():
     
 @cli.command()
 # @click.argument()
-@click.option('--order', nargs=3, type=int, help="Add new order")
-def new_order(order):
-    click.echo(f'Add new order: quantity customer_id game_id')
-    quantity, customer_id, game_id = order
+# @click.option('--order', nargs=3, type=int, help="Add new order")
+@click.option('--quantity', type=int, prompt="Quantity of games", help="No of games ordered")
+@click.option('--customer_id', type=int, prompt="Enter customer id", help="input customer_id")
+@click.option('--game_id', type=int, prompt="Enter game id", help="input game_id")
+def new_order(quantity,customer_id,game_id ):
+    # click.echo(f'Add new order: quantity customer_id game_id')
+    # quantity, customer_id, game_id = order
     new_order = Order(quantity, customer_id, game_id)
     session.add(new_order)
     session.commit()
@@ -115,7 +138,7 @@ def game_deletion(id):
     session.commit()
     
     print(f' ----------------- Game deleted from database succesfully -----------------')
-    print(f'\n +++++++++++++ Updated list +++++++++++++ \n')
+    print(f'\n +++++++++++++ Updated Games list +++++++++++++ \n')
     get_games_list()
         
     
