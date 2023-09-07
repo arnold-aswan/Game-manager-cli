@@ -9,17 +9,6 @@ from models import Game, Customer, Order
 def cli():
     pass
 
-# @cli.command()
-# def home():
-#     click.echo(f' \n ======= (; Welcome Back :) ======= \n \n')
-#     click.echo("""
-#                1 > View a list of customers, available games and orders. \n
-#                2 > Add new customers, new games or make an order. \n
-#                3 > Update games. \n
-#                4 > Delete games. \n
-#                5 > Quit :( \n
-#                """)
-    
 @cli.command() 
 @click.option('--lists', prompt="view a list of customers:", help="--list view cust list")  
 @click.argument('lists', type=int)     
@@ -34,23 +23,25 @@ def view_customer_list(lists):
     get_orders_list()   
     
 @cli.command()
-@click.option('-c', '--customer', prompt="Enter name, email", help="Enter your 'name, email'")
+@click.option('-c', '--customer', type=str,  help="Enter your 'name, email'")
 def add_customer(customer):
     name, email = customer.split(',')
     existing_customer = session.query(Customer).filter_by(email= email).first()
     
     if existing_customer:
         click.echo(f'This email address already exists.')
-    new_customer = Customer(name, email)
-    session.add(new_customer)
-    session.commit()  
-    click.echo(f'Added new customer: {name} ({email}) successfully')   
-    
-    # update_game(customer_id)    
+        click.echo(f'Try a different email address')
+    else:    
+        new_customer = Customer(name, email)
+        session.add(new_customer)
+        session.commit()  
+        click.echo(f'Added new customer: {customer} successfully')  
+       
         
 @cli.command()
-@click.option('-g', '--game', nargs=4, type=click.Tuple([str, str, str, int]), prompt="Enter title, genre, platform, price", help="Enter title, genre, platform, price")                      
+@click.option('-g', '--game', nargs=4, type=(str, str, str, int), help="Add new game: 'title' 'genre' 'platform' price")                      
 def add_game(game):
+    print("Enter title, genre, platform, price")
     title, genre, platform, price = game
     new_game = Game(title, genre, platform, price)
     session.add(new_game)
@@ -68,20 +59,31 @@ def update_game():
     
     
 @cli.command()
-@click.option('-o', '--order', prompt="Add new Order", help="Order Transaction: quantity, customer_id, game_id")
+# @click.argument()
+@click.option('--order', nargs=3, type=int, help="Add new order")
 def new_order(order):
-    quantity, customer_id, game_id = order.split(',')
-    new_order = Order(quantity, customer_id)
+    click.echo(f'Add new order: quantity customer_id game_id')
+    quantity, customer_id, game_id = order
+    new_order = Order(quantity, customer_id, game_id)
+    session.add(new_order)
+    session.commit()
+    click.echo(f' +++ New order +++ \n Quantity: {quantity}, Cust.id: {customer_id}, Game.id: {game_id}')
     
- 
+@cli.command()
+def delete_game():
+    click.echo(f'\n Current list of games \n')
+    get_games_list()
+    id = input("\n Enter game id to delete: \n")
+    game_deletion(id)
+    
+     
 def get_customer_list():
     customer_list = session.query(Customer).all()
     result = []
     for customer in customer_list:
         result.append(f'{customer.id} {customer.name} {customer.email}')
     click.echo('\n'.join(result))    
-    
-    
+       
 def get_games_list():
     games_list = session.query(Game).all()
     results = []
@@ -108,7 +110,14 @@ def game_update(id):
     session.commit()
     get_games_list()
     
+def game_deletion(id):
+    session.query(Game).filter_by(id=id).delete()
+    session.commit()
     
+    print(f' ----------------- Game deleted from database succesfully -----------------')
+    print(f'\n +++++++++++++ Updated list +++++++++++++ \n')
+    get_games_list()
+        
     
 
 
