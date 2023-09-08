@@ -66,19 +66,39 @@ def update_game():
     
 @cli.command()
 def new_order( ):
+    # get_customer_list()
+    # get_games_list()
+    # quantity = input("\n No of games ordered:: ")
+    # customer_id = input("input customer_id:: ")
+    # game_id = input("input game_id:: ")
+    # game = session.query(Game).filter_by(id= game_id).first()
+    # total = int(quantity) * int(game.price)
+    # new_order = Order(quantity, customer_id, game_id)
+    # new_order.total_price = total
+    # session.add(new_order)
+    # session.commit()
+    # click.echo(f'\n +++ New order +++ \n Quantity: {quantity}, Cust.id: {customer_id}, Game.id: {game_id}')
+      
     get_customer_list()
     get_games_list()
     quantity = input("\n No of games ordered:: ")
-    customer_id = input("input customer_id:: ")
+    customer_id = input("input customer_email:: ")
     game_id = input("input game_id:: ")
+    
     game = session.query(Game).filter_by(id= game_id).first()
+    cust_id = session.query(Customer).filter_by(email=customer_id).first()
+    
+    cust_name = cust_id.name
+    customer_id = cust_id.id
+    title = game.title
+    
     total = int(quantity) * int(game.price)
     new_order = Order(quantity, customer_id, game_id)
     new_order.total_price = total
     session.add(new_order)
     session.commit()
-    click.echo(f' +++ New order +++ \n Quantity: {quantity}, Cust.id: {customer_id}, Game.id: {game_id}')
-      
+    click.echo(f'\n +++ New order +++ \n  Customer Name: {cust_name}\n Game.Title: {title}\n Quantity: {quantity} \n Total: {total} \n')
+    
 @cli.command()
 def delete_game():
     click.echo(f'\n Current list of games \n')
